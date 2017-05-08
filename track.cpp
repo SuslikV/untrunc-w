@@ -68,7 +68,7 @@ recoveredSample Codec::getSampleSize(uint8_t *inbuf, int32_t blockLength, uint32
     switch (streamCodec->codec_id) {
     case AV_CODEC_ID_H264:
         //try to recognize AVC sample and confirm its size without decoding it
-        if ((*inbuf) == 0 && ((*inbuf +4) & 0x1f) < 21) //!!!works only for nalSizeField = 4 bytes and max sample size < 16777215; nal_type < 21
+        if ((*inbuf) == 0 && ((*(inbuf +4)) & 0x1f) < 21) //!!!works only for nalSizeField = 4 bytes and max sample size < 16777215; nal_type < 21
             ret = 0; //all OK.
         break;
 
