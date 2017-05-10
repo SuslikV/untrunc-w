@@ -63,13 +63,18 @@ recoveredSample Codec::getSampleSize(uint8_t *inbuf, int32_t blockLength, uint32
     logMe(LOG_DBG, "        blockLength " + to_string(blockLength));
     logMe(LOG_DBG, "initial avpkt->size " + to_string(avpkt->size));
     int ret;
-    ret = -1;
+    ret = -1; //assume samples not found, size unknown
 
     switch (streamCodec->codec_id) {
     case AV_CODEC_ID_H264:
         //try to recognize AVC sample and confirm its size without decoding it
-        if ((*inbuf) == 0 && ((*inbuf +4) & 0x1f) < 21) //!!!works only for nalSizeField = 4 bytes and max sample size < 16777215; nal_type < 21
-            ret = 0; //all OK.
+	//!!!works only for: nalSizeField = 4 bytes; max sample size < 16777215; nal_type = [1..20]; min nal size = 5
+        if (inbuf[0] == 0 &&
+	    (inbuf[4] & 0x1f) < 21 &&
+	    (inbuf[4] & 0x1f) > 0) {
+		
+		ret = 0; //all OK.
+	}
         break;
 
     //TODO: add AV_CODEC_ID_HEVC; AV_CODEC_ID_AAC and others codecs
