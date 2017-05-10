@@ -176,7 +176,6 @@ void Mp4::getInterleavingMask() {
     if (baseTrack.keyframes.size() > GOPcount) {
         // maximum length of the mask in number of GOPs
         maxChunks = baseTrack.keyframes[GOPcount];
-        startLoopPoint = baseTrack.keyframes[GOPcount - GOPloop] -1; //start loop from last GOP
     } else {
         maxChunks = 120; //maximum length of the mask in chunks of the base track
     }
@@ -236,6 +235,21 @@ void Mp4::getInterleavingMask() {
             logMe(LOG_DBG, "j[minVal]++; j[" + to_string(minVal) + "]= " + to_string(j[minVal]));
         } //while
 
+    } //if
+	
+    if (GOPcount - GOPloop == 0) {
+        startLoopPoint = 0; //start loop from the start of the interleaving mask
+    } else {
+        startLoopPoint = 0; //start loop from the start of the interleaving mask
+        if (baseTrack.keyframes.size() > GOPcount) {
+            uint32_t i = 0;
+            while (startLoopPoint < baseTrack.keyframes[GOPloop] && i < interleavingMask.size()) {
+            if (interleavingMask[i] == baseN) //count only base track samples
+                startLoopPoint++;
+            i++;
+            } //while
+            startLoopPoint = i -1; //turn startLoopPoint into index storage now; -1 because last i++
+        } //if
     } //if
 }
 
