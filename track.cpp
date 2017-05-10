@@ -192,8 +192,16 @@ uint32_t Track::optMinSampleSize(Track &track, clFile &brokenFile, uint64_t samp
         return sampleSizeAssumption;
         break;
 
+    case AV_CODEC_ID_PCM_S16LE:
+        //Place here optimizations for minimum sample size
+        //format: 'sowt' ('soun' sound media handler_type); uncompressed PCM signed 16-bit little-endian
+        sampleSizeAssumption = track.sizesMinMax[0]; //minimum and always fixed
+        logMe(LOG_DBG, "First sampleSizeAssumption = " + to_string(sampleSizeAssumption));
+        return sampleSizeAssumption;
+        break;
+
     default:
-        return 4;
+        return 4; //sampleSizeAssumption for unknown codec
     }
 }
 
