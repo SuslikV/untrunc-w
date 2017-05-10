@@ -186,8 +186,6 @@ void Mp4::getInterleavingMask() {
     if (baseTrack.useOffsets64) { //questionable assumption that all tracks may use same short/long offsets (anyway short working file recommended, so 64-bit branch almost never used)
         //64-bit offsets
         logMe(LOG_DBG, "baseTrack.offsets.size()= " + to_string(baseTrack.longOffsets64.size()));
-        interleavingMask.push_back(baseN);//add number of the base track to the mask array as first element
-        j[baseN]++; //increase index of the base track
 
         while ((j[baseN] < maxChunks) && (j[baseN] < baseTrack.longOffsets64.size())) {
             minVal = baseN; //first track
@@ -212,8 +210,6 @@ void Mp4::getInterleavingMask() {
     } else {
         //32-bit offsets
         logMe(LOG_DBG, "baseTrack.offsets.size()= " + to_string(baseTrack.offsets.size()));
-        interleavingMask.push_back(baseN);//add number of the base track to the mask array as first element
-        j[baseN]++; //increase index of the base track
 
         while ((j[baseN] < maxChunks) && (j[baseN] < baseTrack.offsets.size())) {
             minVal = baseN; //first track
