@@ -429,7 +429,7 @@ void Mp4::repair(string filename) {
         //try to buffer maximum amount of data
         fileBuffMaxlength = 8000000; //int32_t
 
-        logMe(LOG_INFO, "Processing " + to_string(offset +1) + " of " + to_string(brokenFile.length()) + " bytes...");
+        logMe(LOG_INFO, "Processing at " + to_string(offset) + " of " + to_string(brokenFile.length()) + " bytes...");
 
         readFileResult = brokenFile.readBlockOfBytesP(offset, fileBufStart, fileBuffMaxlength);
         smplBufStart = fileBufStart; //align buffers after file read
@@ -579,7 +579,8 @@ endRead:
     logMe(LOG_INFO, "----");
     logMe(LOG_INFO, "End of the processing.");
     logMe(LOG_INFO, "");
-    logMe(LOG_INFO, "Repaired: " + to_string(foundCounter) + " samples");
+    logM(LOG_INFO, "Repaired: " + to_string(foundCounter) + " samples ");
+    logMe(LOG_INFO, "(~" + to_string((uint32_t)((double_t)offset / brokenFile.length() *100)) + "% of data processed)");
 }
 
 void Mp4::saveMovie(string filenameBAD) {
