@@ -176,7 +176,6 @@ void Mp4::getInterleavingMask() {
     if (baseTrack.keyframes.size() > GOPcount) {
         // maximum length of the mask in number of GOPs
         maxChunks = baseTrack.keyframes[GOPcount];
-        startLoopPoint = baseTrack.keyframes[GOPcount - GOPloop] -1; //start loop from last GOP
     } else {
         maxChunks = 120; //maximum length of the mask in chunks of the base track
     }
@@ -187,8 +186,6 @@ void Mp4::getInterleavingMask() {
     if (baseTrack.useOffsets64) { //questionable assumption that all tracks may use same short/long offsets (anyway short working file recommended, so 64-bit branch almost never used)
         //64-bit offsets
         logMe(LOG_DBG, "baseTrack.offsets.size()= " + to_string(baseTrack.longOffsets64.size()));
-        interleavingMask.push_back(baseN);//add number of the base track to the mask array as first element
-        j[baseN]++; //increase index of the base track
 
         while ((j[baseN] < maxChunks) && (j[baseN] < baseTrack.longOffsets64.size())) {
             minVal = baseN; //first track
@@ -213,8 +210,6 @@ void Mp4::getInterleavingMask() {
     } else {
         //32-bit offsets
         logMe(LOG_DBG, "baseTrack.offsets.size()= " + to_string(baseTrack.offsets.size()));
-        interleavingMask.push_back(baseN);//add number of the base track to the mask array as first element
-        j[baseN]++; //increase index of the base track
 
         while ((j[baseN] < maxChunks) && (j[baseN] < baseTrack.offsets.size())) {
             minVal = baseN; //first track
@@ -236,6 +231,21 @@ void Mp4::getInterleavingMask() {
             logMe(LOG_DBG, "j[minVal]++; j[" + to_string(minVal) + "]= " + to_string(j[minVal]));
         } //while
 
+    } //if
+	
+    if (GOPcount - GOPloop == 0) {
+        startLoopPoint = 0; //start loop from the start of the interleaving mask
+    } else {
+        startLoopPoint = 0; //start loop from the start of the interleaving mask
+        if (baseTrack.keyframes.size() > GOPcount) {
+            uint32_t i = 0;
+            while (startLoopPoint < baseTrack.keyframes[GOPloop] && i < interleavingMask.size()) {
+            if (interleavingMask[i] == baseN) //count only base track samples
+                startLoopPoint++;
+            i++;
+            } //while
+            startLoopPoint = i -1; //turn startLoopPoint into index storage now; -1 because last i++
+        } //if
     } //if
 }
 
