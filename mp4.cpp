@@ -314,6 +314,9 @@ void Mp4::repair(string filename) {
 
     logMe(LOG_INFO, "Reading broken file: " + filename);
 
+    if (brokenFile.length() < 2)
+        throw string("Broken file too small - almost no data to recover.");
+
     //find 'mdat' by parsing file or find it manually and then parse header of the box (usefull when file header not_written/reserved)
     BufferedBox *mdat = new BufferedBox;
     while (brokenFile.pos() < brokenFile.length() -1) { //till the end of the file
