@@ -1,17 +1,17 @@
 untrunc-w, 2017
 ---------------
 
-## About
+## About ##
 
-utrunc-w designed to restore playability of the aborted .mp4 recordings.
+untrunc-w designed to restore playability of the aborted .mp4 recordings.
 
-## Features
+## Features ##
 
 * Windows platform
 * multitrack support (tested with OBS Studio v18.0.1)
 * command line utility
 
-## Usage
+## Usage ##
 
 untrunc-w.exe [options] <workingfile.mp4> [<brokenfile.mp4>]
 
@@ -40,18 +40,22 @@ Options:
 
 --help: Display short help info.
 
-Good result was achieved for --gopm 12 --gopl 10, with working file sample that had 25 keyframes entries
+Good result was achieved for --gopm 12 --gopl 10, with working file sample of 25 keyframes.
 
-## Compile
+## Requirements ##
 
-Requirements:
+### Run:
+Windows 7 (minimum);
+FFmpeg libs at the same folder as .exe file.
 
+### Compile:
 Windows 7 (minimum);
 qt v5.8.0 (x86);
 Visual Studio 2013 UPD5;
 FFmpeg libs and headers files (ffmpeg-20170425-b4330a0-win32).
 
 Project developed under qt (v5.8.0), compiled by Visual Studio 2013 default compilers.
+
 Default folder for dependencies libs:
 
     ./untrunc_deps/win32/bin/
@@ -64,11 +68,11 @@ Default folder for project files:
 
     ./untrunc-w/
 
-## Legal
+## Legal ##
 
 New parts of the code covered by MIT, joined by MPL2, but whole program still under the GPL2 license or so.
 
-## Conclusion
+## Conclusion ##
 
 A lot of work is done.
 
@@ -81,9 +85,10 @@ My own estimation on full file recovery is about 25% of success.
 
 If you can - do it, do it better!
 
-## Links
+## Links ##
 
 - https://github.com/ponchio/untrunc
 - https://obsproject.com
+- https://github.com/SuslikV/untrunc-w/releases/latest
 
 With best wishes, Suslik V.
