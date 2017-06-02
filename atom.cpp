@@ -103,7 +103,7 @@ void Box::parseBoxHeader(clFile &anyfile){
     if (type == (uint32_t)'uuid') {
         //read uuid
         for(int i = 0; i < 16; i++)
-            usertype[i] = anyfile.readUchar();
+            usertype.push_back(anyfile.readUchar());
         hasUUID = true;
     }
 
