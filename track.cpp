@@ -17,7 +17,7 @@
 
 using namespace std;
 
-recoveredSample Codec::getSampleSize(uint8_t *inbuf, int32_t blockLength, uint32_t minLength, AVCodecParameters *streamCodec, uint32_t samplesCount, uint8_t nalSizeField) {
+recoveredSample Codec::getSampleSize(uint8_t *inbuf, int32_t blockLength, int32_t minLength, AVCodecParameters *streamCodec, uint32_t samplesCount, uint8_t nalSizeField) {
     recoveredSample sizeResults;
     recoveredSample recoveredSTmp;
 
