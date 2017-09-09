@@ -17,6 +17,8 @@ extern "C" {
 #include "libavcodec/avcodec.h" //extern to get enum AVCodecID
 }
 
+extern int32_t h264alg;
+
 class Box;
 
 //to store samples to chunk values from the 'stsc' box
@@ -40,7 +42,7 @@ struct recoveredSample {
 class Codec {
 public:
     //return sturcture of sample
-    recoveredSample getSampleSize(uint8_t *inbuf, int32_t blockLength, uint32_t minLength, AVCodecParameters *streamCodec, uint32_t samplesCount);
+    recoveredSample getSampleSize(uint8_t *inbuf, int32_t blockLength, int32_t minLength, AVCodecParameters *streamCodec, uint32_t samplesCount, uint8_t nalSizeField);
 
     AVCodecParameters *codecParamByFFmpeg; //to get codec parameters from working file and use it on broken
     AVCodec *codecByFFmeg;

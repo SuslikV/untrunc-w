@@ -430,7 +430,7 @@ void Mp4::repair(string filename) {
     size_t readFileResult; //resut of the file read operation
     uint32_t j = 0; //interleaving mask iterator (cyclic) or chunks counter (cyclic)
     uint32_t trackNumber = 0; //get it from interleaving mask
-    uint32_t minSmplLength; //get it from optMinSampleSize()
+    int32_t minSmplLength; //get it from optMinSampleSize()
     uint32_t samplesCount; //number of samples in current AU
     recoveredSample lengthResultsTmp; //temporary samples results per single chunk
     recoveredSample recoveredSTmp; //temporary storage of the recovered samples parameters
@@ -483,12 +483,12 @@ void Mp4::repair(string filename) {
             //split chunks into samples
             for (uint32_t i = 0; i < samplesCount; i++) {
 
-                minSmplLength = track.optMinSampleSize(track, brokenFile, offset, track.codec.codecParamByFFmpeg);
+                minSmplLength = (int32_t) track.optMinSampleSize(track, brokenFile, offset, track.codec.codecParamByFFmpeg);
                 //AAC minSampleLength = 6;
 
                 logMe(LOG_DBG, "");
                 logMe(LOG_DBG, "Split chunks, sampleBuffer size= " + to_string(smplBufEnd - smplBufStart));
-                lengthResultsTmp = track.codec.getSampleSize(smplBufStart, sampleBuffMaxlength, minSmplLength, track.codec.codecParamByFFmpeg, 1);
+                lengthResultsTmp = track.codec.getSampleSize(smplBufStart, sampleBuffMaxlength, minSmplLength, track.codec.codecParamByFFmpeg, 1, track.nalSizeField);
 
                 logMe(LOG_DBG, "original file, chunk offset= " + to_string(offset)); //absolute
                 recoveredSTmp.chunkInBoxOffset = offset - (mdat->contentOffset); //relative to mdat box start
