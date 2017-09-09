@@ -17,6 +17,8 @@ extern "C" {
 #include "libavcodec/avcodec.h" //extern to get enum AVCodecID
 }
 
+extern int32_t h264alg;
+
 class Box;
 
 //to store samples to chunk values from the 'stsc' box
