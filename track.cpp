@@ -245,9 +245,9 @@ uint32_t Track::optMinSampleSize(Track &track, clFile &brokenFile, uint64_t samp
         //nalSizeField stores lenght of this field per track
         sampleSizeAssumption = brokenFile.readUintP(sampleOffset);
         logMe(LOG_DBG, "sampleSizeAssumption = " + to_string(sampleSizeAssumption));
-        bb = (8 * (4 - track.nalSizeField));
+        bb = 8 * (4 - track.nalSizeField);
         logMe(LOG_DBG, " field length = " + to_string(track.nalSizeField));
-        sampleSizeAssumption = sampleSizeAssumption >> (8 * (4 - track.nalSizeField));
+        sampleSizeAssumption = sampleSizeAssumption >> bb;
         sampleSizeAssumption += track.nalSizeField; //sample size should include NAL-size field
         logMe(LOG_DBG, "First sampleSizeAssumption = " + to_string(sampleSizeAssumption));
         if (sampleSizeAssumption > (track.sizesMinMax[1] *2)) { //twice bigger video samples almost not possible
