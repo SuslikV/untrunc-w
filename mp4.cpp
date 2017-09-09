@@ -1072,8 +1072,20 @@ void Mp4::saveMovie(string filenameBAD) {
         throw string ("Error! Cannot open file for reading: ") + filenameBAD + ".tmp";
 
     //copy whole 'mdat' from broken file to repaired
-    logMe(LOG_INFO, "copying 'mdat' box...");
     Box *mdat = mdatBAD;
+    //check for uncomplete 'mdat' box size info
+    if ((mdat->size != 0) && (mdat->contentSize < 1024LL)) {
+        logM(LOG_INFO, "Too small 'mdat' content size info detected (bytes): ");
+        logMe(LOG_INFO, to_string(mdat->contentSize));
+
+        mdat->actualSize = brokenFile.length() - mdat->startOffset; //startOffset max = 2^63 due to file.length()
+        mdat->contentSize = (int64_t) mdat->actualSize - (mdat->contentOffset - mdat->startOffset);
+
+        logM(LOG_INFO, "Info was updated. New 'mdat' content size (bytes): ");
+        logMe(LOG_INFO, to_string(mdat->contentSize));
+
+    }
+    logMe(LOG_INFO, "copying 'mdat' box...");
     mdat->copyBoxFixSize(mdat, brokenFile, repairedFile);
 
     //iterate through all working file boxes (root) and copy them to repairedFile
