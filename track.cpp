@@ -17,7 +17,7 @@
 
 using namespace std;
 
-recoveredSample Codec::getSampleSize(uint8_t *inbuf, int32_t blockLength, uint32_t minLength, AVCodecParameters *streamCodec, uint32_t samplesCount) {
+recoveredSample Codec::getSampleSize(uint8_t *inbuf, int32_t blockLength, uint32_t minLength, AVCodecParameters *streamCodec, uint32_t samplesCount, uint8_t nalSizeField) {
     recoveredSample sizeResults;
     recoveredSample recoveredSTmp;
 
@@ -65,19 +65,110 @@ recoveredSample Codec::getSampleSize(uint8_t *inbuf, int32_t blockLength, uint32
     int ret;
     ret = -1; //assume samples not found, size unknown
 
+    uint8_t nalFirstByte;//NAL first byte to get forbidden_zero_bit, nal_ref_idc and nal_type
+
     switch (streamCodec->codec_id) {
     case AV_CODEC_ID_H264:
         //try to recognize AVC sample and confirm its size without decoding it
-	//!!!works only for: nalSizeField = 4 bytes; max sample size < 16777215; nal_type = [1..20]; min nal size = 5
-        if (inbuf[0] == 0 &&
-	    (inbuf[4] & 0x1f) < 21 &&
-	    (inbuf[4] & 0x1f) > 0) {
-		
-		ret = 0; //all OK.
-	}
+
+        if (h264alg == 10) {
+            //v1.0
+            logMe(LOG_DBG, "v1.0 in use");
+            //!!!___works only for: nalSizeField = 4 bytes; max sample size < 16777215; nal_type = [1..20]; min nal size = 5
+            if ((*inbuf) == 0 &&
+                ((*inbuf +4) & 0x1F) < 21) {
+
+                ret = 0; //all OK
+            }
+
+        } else if (h264alg == 11) {
+            //v1.1
+            logMe(LOG_DBG, "v1.1 in use");
+            //!!!___works only for: nalSizeField = 4 bytes; max sample size < 16777215; nal_type = [1..20]; min nal size = 5
+            if (inbuf[0] == 0 &&
+                (inbuf[4] & 0x1F) < 21 &&
+                (inbuf[4] & 0x1F) > 0){
+
+                ret = 0; //all OK
+            }
+
+        } else {
+            //v1.2
+            logMe(LOG_DBG, "v1.2 in use");
+            nalFirstByte = inbuf[nalSizeField];
+            logMe(LOG_DBG, "nal first byte " + to_string(nalFirstByte));
+
+            //nal size lower then max allowed sample size for the track and
+            //nal_type (5-bits) in range [1..21] and
+            //nal_forbidden_bit (1-bit) equals to 0
+            if ((minLength <= blockLength) &&
+                (nalFirstByte & 0x1F) < 22 &&
+                (nalFirstByte & 0x1F) > 0 &&
+                (nalFirstByte & 0x80) == 0) {
+
+                switch (nalFirstByte & 0x1F) {
+
+                case 6:
+                case 9:
+                case 10:
+                case 11:
+                case 12:
+                    //nal_ref_idc (2-bits)
+                    if ((nalFirstByte & 0x60) == 0)
+                        ret = 0;
+                    break;
+
+                case 5:
+                case 7:
+                case 8:
+                case 13:
+                case 15:
+                    //nal_ref_idc (2-bits)
+                    if ((nalFirstByte & 0x60) > 0)
+                        ret = 0;
+                    break;
+
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                    //nal_ref_idc (2-bits)
+                    //any value
+                        ret = 0;
+                    break;
+
+                default:
+                    //16,17,18 - unknown NAL
+                    ret = -1;
+                    break;
+                }
+            } //if
+        }
         break;
 
-    //TODO: add AV_CODEC_ID_HEVC; AV_CODEC_ID_AAC and others codecs
+    //TODO: add AV_CODEC_ID_HEVC and others codecs
+
+    case AV_CODEC_ID_AAC:
+        if (inbuf[0] == 0)
+            break; //skip zero byte tracks. Let's assume that is not AAC track (ISO/IEC 13818-7 2004)
+
+        //unknown exact sample size, so try to use ffmpeg by slowly increasing packet size
+        while ((avpkt->size <= blockLength) && (avpkt->size > 0) && (ret < 0) && !(ret == AVERROR_EOF)) {
+            //logMe(LOG_DBG, "avpkt->size = " + to_string(avpkt->size)); //too verbose...
+            ret = avcodec_send_packet(c, avpkt);
+            //Here AVERROR(EAGAIN) return value means that decoder's buffer full and it's time to
+            //call avcodec_receive_frame. Then, probably, will be possible to send this packet again...
+            if (ret < 0) {
+                if (ret == AVERROR_EOF) {
+                    logMe(LOG_DBG, "send AVERROR_EOF");
+                }
+                if (ret == AVERROR(EAGAIN)) {
+                    logMe(LOG_DBG, "send AVERROR(EAGAIN)");
+                }
+                avpkt->size++;
+            }
+        } //while
+        break;
 
     default:
         //unknown exact sample size, so try to use ffmpeg by slowly increasing packet size
