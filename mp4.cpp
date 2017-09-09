@@ -488,7 +488,7 @@ void Mp4::repair(string filename) {
 
                 logMe(LOG_DBG, "");
                 logMe(LOG_DBG, "Split chunks, sampleBuffer size= " + to_string(smplBufEnd - smplBufStart));
-                lengthResultsTmp = track.codec.getSampleSize(smplBufStart, sampleBuffMaxlength, minSmplLength, track.codec.codecParamByFFmpeg, 1);
+                lengthResultsTmp = track.codec.getSampleSize(smplBufStart, sampleBuffMaxlength, minSmplLength, track.codec.codecParamByFFmpeg, 1, track.nalSizeField);
 
                 logMe(LOG_DBG, "original file, chunk offset= " + to_string(offset)); //absolute
                 recoveredSTmp.chunkInBoxOffset = offset - (mdat->contentOffset); //relative to mdat box start
