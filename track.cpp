@@ -37,7 +37,7 @@ recoveredSample Codec::getSampleSize(uint8_t *inbuf, int32_t blockLength, int32_
     c = avcodec_alloc_context3(NULL);
     avcodec_parameters_to_context(c, streamCodec);
     if (!c) {
-        throw string("Could not allocate audio codec context!");
+        throw string("Could not allocate codec context!");
         //exit(1);
     }
 
