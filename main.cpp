@@ -28,6 +28,7 @@ bool complete = false; //save movie task is complete
 uint32_t GOPcount = 1; //GOP count used to build the interleaving mask (minimum = 1)
 uint32_t GOPloop = 1; //GOP count used to loop the interleaving mask (maximum = GOPcount)
 int32_t smpltrk = 0; //0 = multi-track mode; sample per track count used to loop the chunk members in two-tracks mode only
+int32_t h264alg = 12; //h264 nal recognition algorithm version
 
 void usage() {
     logMe(LOG_ERR, "Usage: untrunc-w [options] <working.mp4> [<broken.mp4>]");
@@ -49,6 +50,7 @@ void helpme() {
     logMe(LOG_INFO, "--gopl [n]        : IM loop start, in number [n] of GOPs. Default setting is 1.");
     logMe(LOG_INFO, "--smpltrk [0..100]: Number of samples per chunk instead of using IM values.");
     logMe(LOG_INFO, "                    Default setting is 0 (multi-track mode).");
+    logMe(LOG_INFO, "--h264alg [10..12]: Algorithm of h264 recognition [version number].");
     logMe(LOG_INFO, "--help            : Display this help info.");
     logMe(LOG_INFO, "");
     logMe(LOG_INFO, "Recommendations.");
@@ -76,7 +78,7 @@ int main(int argc, char *argv[]) {
     //argv[6] = (char *)"C:/Temp/2017-04-30 23-38-20working.mp4";
     //argv[7] = (char *)"C:/Temp/2017-04-30 21-09-09broken.mp4"; //thanks to bowlingotter for real samples
     //end_test
-    string GOPcountStr, GOPloopStr, smpltrkStr;
+    string GOPcountStr, GOPloopStr, smpltrkStr, h264algStr;
     int i = 1;
     for(; i < argc; i++) {
         string arg(argv[i]);
@@ -92,6 +94,8 @@ int main(int argc, char *argv[]) {
             if (++i < argc) GOPloopStr = argv[i];
         } else if (arg == "--smpltrk") {
             if (++i < argc) smpltrkStr = argv[i];
+        } else if (arg == "--h264alg") {
+            if (++i < argc) h264algStr = argv[i];
         } else if (arg == "--help") {
             helpme();
             return 0;
@@ -119,7 +123,12 @@ int main(int argc, char *argv[]) {
     if (smpltrk > 100)
         smpltrk = 100; //!assumption based on own experience, subject to change
     logMe(LOG_INFO, "Samples per chunk (0 - get it from the working file): " + to_string(smpltrk));
-
+    
+    if (h264algStr != "") {
+        h264alg = atoi(h264algStr.c_str());
+        logMe(LOG_INFO, "h264 Algorithm version: " + to_string(h264alg));
+    }
+    
     string working = argv[i];
     string broken;
     i++;
