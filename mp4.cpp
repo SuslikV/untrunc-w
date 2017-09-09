@@ -163,8 +163,20 @@ void Mp4::getInterleavingMask() {
         j.push_back((uint32_t) 0); //start each track's element index from 0
 
     uint32_t baseN = 0; //number for the base track
+
+    vector<Box *> trakBoxesTmp = root->getBoxesCollByType((uint32_t)'trak');
+    if (!(trackBoxContent.size() == trakBoxesTmp.size()))
+        throw ("Error. The root box of tracks was modified after last parsing. Cannot proceed further.");
+
+    //use first track that has sync samples box ('stss') as base track
+    for (uint32_t i = 0; i < trackBoxContent.size(); i++) {
+        Box *stss = trakBoxesTmp[i]->getBoxByType((uint32_t)'stss');
+        if (stss) {
+            baseN = i; //if possible, set the base track number
+            break;
+        }
+    }
     logMe(LOG_INFO, "Base track: " + to_string(baseN));
-    //TODO: use first track that has sync samples box ('stss') as base track
     Track &baseTrack = trackBoxContent[baseN]; // first track is our base, assuming that this is a video track
 
     //maximum length of the mask in number of GOPs;
