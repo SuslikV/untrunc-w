@@ -492,6 +492,12 @@ void Mp4::repair(string filename) {
                 recoveredSTmp.smplNumInChunk = lengthResultsTmp.smplNumInChunk;
                 recoveredSTmp.smplSend = lengthResultsTmp.smplSend;
 
+                //TODO: compare sample to previous one
+                //in case of bad match - the sample belongs to other track
+                //and set recoveredSTmp.smplSend = -1; to try next interleaving mask member
+                //TODO: detect edges between decoded packets data flow.
+                //High gradient expected in case of packets belongs to different tracks.
+
                 //check for keyframes (sync samples)
                 uint8_t nalFirstByte = smplBufStart[track.nalSizeField];
                 switch (track.codec.codecParamByFFmpeg->codec_id) {
