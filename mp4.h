@@ -16,7 +16,7 @@
 #include "track.h"
 
 extern "C" {
-#include <libavformat/avformat.h>
+#include "libavformat/avformat.h" //extern to get av_register_all etc.
 }
 
 extern int verbFFLevel; //declare and define it at 'main.cpp' but also use in 'loginfo.cpp'
