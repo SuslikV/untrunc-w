@@ -9,10 +9,6 @@
 #include <string>
 #include <iostream>
 
-extern "C" {
-#include "libavformat/avformat.h" //extern to get av_register_all etc.
-}
-
 #include "mp4.h"
 #include "atom.h"
 #include "file.h"
