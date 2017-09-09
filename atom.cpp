@@ -245,7 +245,7 @@ void Box::writeBoxHeaderSize(Box *currentBox, int64_t startPoint, clFile &destin
         destinationFile.seek(startPoint);           //to the start of the 'free' box
         destinationFile.writeUint(1);               //overwrite; large size is used instesad
         destinationFile.writeUint(currentBox->type);//overwrite; boxtype
-        destinationFile.writeUint64(largesize64);   //overwrite; write large size
+        destinationFile.writeUint64(largesize64 +8);   //overwrite; write large size; +8 is largesize64 field itself instead of 'free' box
     }
     destinationFile.seek(endPoint); //anyway, move file pointer to the end of the box
 }
