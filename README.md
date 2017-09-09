@@ -3,7 +3,7 @@ untrunc-w, 2017
 
 ## About ##
 
-untrunc-w designed to restore playability of the aborted .mp4 recordings.
+untrunc-w designed to restore playability of the aborted .mp4/.mov recordings.
 
 ## Features ##
 
@@ -17,7 +17,7 @@ untrunc-w.exe [options] <workingfile.mp4> [<brokenfile.mp4>]
 
 where:
 
-- 'workingfile.mp4' is working file sample from the same encoding setup (same device),
+- 'workingfile.mp4' is working file sample from the same encoding setup (from the same device),
 - 'brokenfile.mp4' is file from aborted recording session (any player fails to playback it).
 
 The repaired file saved under the same directory as 'brokenfile.mp4' and named 'brokenfile.mp4_untrunc.mp4'.
@@ -37,6 +37,8 @@ Options:
 --gopl [n]: Interleaving Mask loop start in number [n] of GOPs. Default setting is 1.
 
 --smpltrk [0..100]: Use number of samples per chunk instead of using Interleaving Mask values. Default is 0 (multi-track mode).
+
+--h264alg [10..12]: Algorithm of h264 samples recognition [version number].
 
 --help: Display short help info.
 
