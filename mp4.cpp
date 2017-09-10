@@ -470,7 +470,7 @@ void Mp4::repair(string filename) {
             }
 
             //sampleBuffMaxlength = (int32_t) track.sizesMinMax[1] *2; //max twice bigger//* samplesCount; //max sample size * samples count = max possible chunk size; casting due to ffmpeg AV packet size is int32_t
-            sampleBuffMaxlength = track.sizesMinMax[1] +10000; //!!!bigger samples almost not possible; assumption by own experience, subject to change
+            sampleBuffMaxlength = track.sizesMinMax[1] +10000 + uint32_t(track.sizesMinMax[1] * 0.10); //!!!bigger samples almost not possible; assumption by own experience, subject to change
             if (sampleBuffMaxlength > (smplBufEnd - smplBufStart)) {
                 logMe(LOG_DBG, "Current chunk may require bigger buffer storage.");
                 sampleBuffMaxlength = (int32_t) (smplBufEnd - smplBufStart); //casting due to ffmpeg AV packet size is int32_t
