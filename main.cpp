@@ -38,7 +38,7 @@ void usage() {
 
 void helpme() {
     logMe(LOG_INFO, "");
-    logMe(LOG_INFO, "untrunc-w.Date.2017.version.1.2");
+    logMe(LOG_INFO, "untrunc-w.Date.2018.version.1.3");
     logMe(LOG_INFO, "");
     logMe(LOG_INFO, "Usage: untrunc-w [options] <working.mp4> [<broken.mp4>]");
     logMe(LOG_INFO, "");
