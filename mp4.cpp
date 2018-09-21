@@ -188,7 +188,7 @@ void Mp4::getInterleavingMask() {
         maxChunks = 120; //maximum length of the mask in chunks of the base track
     }
     logMe(LOG_INFO, "baseTrack.keyframes.size(): " + to_string(baseTrack.keyframes.size()));
-    logMe(LOG_INFO, "Number of chunks used to build the mask: " + to_string(maxChunks));
+    logMe(LOG_INFO, "Number of chunks to build the mask, trying: " + to_string(maxChunks));
 
     //---- TODO: implement 'merge sort' elements, because current algorithm inefficient ----//
     if (baseTrack.useOffsets64) { //questionable assumption that all tracks may use same short/long offsets (anyway short working file recommended, so 64-bit branch almost never used)
@@ -240,7 +240,12 @@ void Mp4::getInterleavingMask() {
         } //while
 
     } //if
-	
+
+    logMe(LOG_INFO, "Actual IM size = " + to_string(interleavingMask.size() -1)); //-1 because mask has additional element at the end
+    if (interleavingMask.size() < 2) { // at least 2 elements are needed
+        throw ("Error. The working file sample is too short for the recovery process. Try longer recording (other file).");
+    }
+
     if (GOPcount - GOPloop == 0) {
         startLoopPoint = 0; //start loop from the start of the interleaving mask
     } else {
