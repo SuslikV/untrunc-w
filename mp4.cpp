@@ -91,7 +91,7 @@ void Mp4::open(string filename) {
     int error = avformat_open_input(&contextByFFmpeg, filename.c_str(), NULL, NULL);
 
     if (error != 0)
-        throw "Could not parse AV file: " + filename;
+        throw string("Could not parse AV file: ") + filename;
 
     if (avformat_find_stream_info(contextByFFmpeg, NULL) < 0)
         throw string("Could not find stream info");
@@ -162,7 +162,7 @@ void Mp4::getInterleavingMask() {
 
     vector<Box *> trakBoxesTmp = root->getBoxesCollByType((uint32_t)'trak');
     if (!(trackBoxContent.size() == trakBoxesTmp.size()))
-        throw ("Error. The root box of tracks was modified after last parsing. Cannot proceed further.");
+        throw string("Error. The root box of tracks was modified after last parsing. Cannot proceed further.");
 
     //use first track that has sync samples box ('stss') as base track
     for (uint32_t i = 0; i < trackBoxContent.size(); i++) {
@@ -242,9 +242,8 @@ void Mp4::getInterleavingMask() {
     } //if
 
     logMe(LOG_INFO, "Actual IM size = " + to_string(interleavingMask.size() -1)); //-1 because mask has additional element at the end
-    if (interleavingMask.size() < 2) { // at least 2 elements are needed
-        throw ("Error. The working file sample is too short for the recovery process. Try longer recording (other file).");
-    }
+    if (interleavingMask.size() < 2) // at least 2 elements are needed
+        throw string("Error. The working file sample is too short for the recovery process. Try longer recording (other file).");
 
     if (GOPcount - GOPloop == 0) {
         startLoopPoint = 0; //start loop from the start of the interleaving mask
@@ -323,7 +322,7 @@ ChunkMembers Mp4::getChunkMembers(uint32_t trackNumber, uint32_t chunkPosition) 
 
 void Mp4::repair(string filename) {
     if (!brokenFile.open(filename))
-        throw "Could not open file to repair: " + filename;
+        throw string("Could not open file to repair: ") + filename;
 
     logMe(LOG_INFO, "Reading broken file: " + filename);
 
@@ -610,7 +609,6 @@ void Mp4::saveMovie(string filenameBAD) {
     //the workingBox start offsets should point to this file.
     clFile repairedBoxesFile;
     if (repairedBoxesFile.open(filenameBAD + ".tmp")) {
-        //throw string ("Warning! File already exist: ") + filenameBAD + ".tmp";
         logMe(LOG_WRN, "Warning! Temporary file already exist: " + filenameBAD + ".tmp");
         deleteTmps = false; //keep .tmp file
         return;
@@ -623,7 +621,6 @@ void Mp4::saveMovie(string filenameBAD) {
     //repairedFile - it's a final result of the program
     clFile repairedFile;
     if (repairedFile.open(filenameBAD)) {
-        //throw string ("Warning! File already exist: ") + filenameBAD;
         logMe(LOG_WRN, "Warning! File already exist: " + filenameBAD);
         return;
     } else {
@@ -670,7 +667,7 @@ void Mp4::saveMovie(string filenameBAD) {
     //write to temporary storage
     vector<Box *> trakBoxes = root->getBoxesCollByType((uint32_t)'trak');
     if (!(trackBoxContent.size() == trakBoxes.size()))
-        throw ("Error. The root box of tracks was modified after last parsing. Cannot proceed further.");
+        throw string("Error. The root box of tracks was modified after last parsing. Cannot proceed further.");
     for (uint32_t i = 0; i < trackBoxContent.size(); i++) {
 
 //====== restore box of decoding time to sample (stts) ======//
@@ -1076,7 +1073,7 @@ void Mp4::saveMovie(string filenameBAD) {
     //open temporary storage for reading
     repairedBoxesFile.close();
     if (!repairedBoxesFile.open(filenameBAD + ".tmp"))
-        throw string ("Error! Cannot open file for reading: ") + filenameBAD + ".tmp";
+        throw string("Error! Cannot open file for reading: ") + filenameBAD + ".tmp";
 
     //copy whole 'mdat' from broken file to repaired
     Box *mdat = mdatBAD;
