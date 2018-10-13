@@ -274,6 +274,8 @@ uint32_t Track::optMinSampleSize(Track &track, clFile &brokenFile, uint64_t samp
         //Place here optimizations for minimum sample size
         //TODO: optimizations on AAC packet size, maybe...
         sampleSizeAssumption = 6;
+        if ((track.sizesMinMax[0] < 6) && (track.sizesMinMax[0] > 1)) //4 is possible value
+             sampleSizeAssumption = track.sizesMinMax[0];
         logMe(LOG_DBG, "First sampleSizeAssumption = " + to_string(sampleSizeAssumption));
         if (sampleSizeAssumption > 12000) { //!!!assumption based on own experience; subject to change
             sampleSizeAssumption = (track.sizesMinMax[1] *2); //make it twice bigger
