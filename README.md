@@ -40,6 +40,8 @@ Options:
 
 --h264alg [10..12]: Algorithm of h264 samples recognition [version number].
 
+--aacgg [0..127]  : AAC (1 channel) low global_gain threshold. Default is 80.
+
 --help: Display short help info.
 
 Good result was achieved for --gopm 12 --gopl 10, with working file sample of 25 keyframes.
@@ -48,7 +50,8 @@ Good result was achieved for --gopm 12 --gopl 10, with working file sample of 25
 
 ### Run:
 Windows 7 (minimum);
-FFmpeg libs at the same folder as .exe file.
+FFmpeg libs at the same folder as .exe file;
+vc++ 2013 (x86) libs.
 
 ### Compile:
 Windows 7 (minimum);
