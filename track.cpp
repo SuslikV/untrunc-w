@@ -194,7 +194,7 @@ then valid Sigle channel data mask (element_instance_tag = 0):
             //But global_gain comparison is faster with short logic and real samples,
             //because it can cut off small h264 samples with NAL-size field = 4 far earlier.
             //FFmpeg reaches MAX allowed sample size for the track much slower.
-            if ((inbuf[1] > (uint8_t) aacGG) &&
+            if ((inbuf[1] >= (uint8_t) aacGG) &&
                 (inbuf[1] & 0x01) == 0) {
                 logMe(LOG_DBG, "assuming AAC (1 channel) with global_gain = " + to_string(inbuf[1] >> 1));
             } else {
