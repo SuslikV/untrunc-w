@@ -29,6 +29,10 @@ uint32_t GOPcount = 1; //GOP count used to build the interleaving mask (minimum 
 uint32_t GOPloop = 1; //GOP count used to loop the interleaving mask (maximum = GOPcount)
 int32_t smpltrk = 0; //0 = multi-track mode; sample per track count used to loop the chunk members in two-tracks mode only
 int32_t h264alg = 12; //h264 nal recognition algorithm version
+int32_t aacGG = 80; //AAC global_gain low threshold (for mono tracks). Only last 8-bits used.
+                    //!!!Keep it as high as possible, current reading buffer allows 0x007A1200h (8000000) bytes samples,
+                    //!!!so values lower than 0x3Dh (61) not recommended (risk of fasle positive recognition increases).
+                    //!!!Assumption based on own experience, subject to change.
 
 void usage() {
     logMe(LOG_ERR, "Usage: untrunc-w [options] <working.mp4> [<broken.mp4>]");
@@ -51,6 +55,7 @@ void helpme() {
     logMe(LOG_INFO, "--smpltrk [0..100]: Number of samples per chunk instead of using IM values.");
     logMe(LOG_INFO, "                    Default setting is 0 (multi-track mode).");
     logMe(LOG_INFO, "--h264alg [10..12]: Algorithm of h264 recognition [version number].");
+    logMe(LOG_INFO, "--aacgg [0..127]  : AAC (1 channel) low global_gain threshold. Default is 80.");
     logMe(LOG_INFO, "--help            : Display this help info.");
     logMe(LOG_INFO, "");
     logMe(LOG_INFO, "Recommendations.");
@@ -78,7 +83,7 @@ int main(int argc, char *argv[]) {
     //argv[6] = (char *)"C:/Temp/2017-04-30 23-38-20working.mp4";
     //argv[7] = (char *)"C:/Temp/2017-04-30 21-09-09broken.mp4"; //thanks to bowlingotter for real samples
     //end_test
-    string GOPcountStr, GOPloopStr, smpltrkStr, h264algStr;
+    string GOPcountStr, GOPloopStr, smpltrkStr, h264algStr, aacGGStr;
     int i = 1;
     for(; i < argc; i++) {
         string arg(argv[i]);
@@ -96,6 +101,8 @@ int main(int argc, char *argv[]) {
             if (++i < argc) smpltrkStr = argv[i];
         } else if (arg == "--h264alg") {
             if (++i < argc) h264algStr = argv[i];
+        } else if (arg == "--aacgg") {
+            if (++i < argc) aacGGStr = argv[i];
         } else if (arg == "--help") {
             helpme();
             return 0;
@@ -128,7 +135,13 @@ int main(int argc, char *argv[]) {
         h264alg = atoi(h264algStr.c_str());
         logMe(LOG_INFO, "h264 Algorithm version: " + to_string(h264alg));
     }
-    
+
+    if (aacGGStr != "") {
+        aacGG = atoi(aacGGStr.c_str()) & 0x7F; //truncate to last 7-bits
+        logMe(LOG_INFO, "Search for AAC (1 channel) with global_gain only in range: [" + to_string(aacGG) + "..127]");
+    }
+    aacGG = aacGG << 1; //prepare it for AAC mono tracks comparison
+
     string working = argv[i];
     string broken;
     i++;

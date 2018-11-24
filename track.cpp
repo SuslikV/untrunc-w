@@ -1,5 +1,5 @@
 /*
-	Untrunc - track.cpp
+    Untrunc - track.cpp
     GPLv2 or later
     Greetings to work of: 2010, Federico Ponchio
 */
@@ -148,9 +148,60 @@ recoveredSample Codec::getSampleSize(uint8_t *inbuf, int32_t blockLength, int32_
 
     //TODO: add AV_CODEC_ID_HEVC and others codecs
 
+/*
+Single channel audio (Mono/Center) or in terms of AAC - individual_channel_stream(common_window = 0)
+can has leading zero bits.
+Raw stream structure (ISO/IEC 13818-7 2004):
+
+ID_SCE = 3 bits [0]
+element_instance_tag = 4 bits [0..15]
+global_gain = 8 bits [0..255]
+ics_reserved_bit = 1 bit [0] - reserved bit for future use
+window_sequence = 2 bit [0..3]
+window_shape = 1 bit [0..1]
+if (window_sequence == 2)
+then
+    max_sfb = 4 bit [0..15] - can it be zero?
+    scale_factor_grouping = 7 bits [0..127]
+else
+    max_sfb = 6 bit [0..63] - can it be zero?
+    predictor_data_present = 1 bit [0..1]
+    if (predictor_data_present == 1)
+    then
+        predictor_reset = 1 bit [0..1]
+        if (predictor_reset == 1)
+        then
+            predictor_reset_group_number = 5 bits [0..31]
+        ...
+
+section_data
+scale_factor_data
+...
+
+So, if first byte is zero, data may be recognized as:
+if [0] == 0 and [1] > 0 and [1] & 0x1 == 0
+
+Valid Sigle channel data mask (element_instance_tag = 0):
+0000 000X XXXX XXX0 XXXX XXXX XXXX XX
+
+if global_gain < 128
+then valid Sigle channel data mask (element_instance_tag = 0):
+0000 0000 XXXX XXX0 XXXX XXXX XXXX XX (or leading zero-byte sample)
+*/
     case AV_CODEC_ID_AAC:
-        if (inbuf[0] == 0)
-            break; //skip zero byte tracks. Let's assume that is not AAC track (ISO/IEC 13818-7 2004)
+        if ((inbuf[0] == 0) && (blockLength > 1)) {
+            //By logic, the ics_reserved_bit check only required and should be compared first.
+            //But global_gain comparison is faster with short logic and real samples,
+            //because it can cut off small h264 samples with NAL-size field = 4 far earlier.
+            //FFmpeg reaches MAX allowed sample size for the track much slower.
+            if ((inbuf[1] > (uint8_t) aacGG) &&
+                (inbuf[1] & 0x01) == 0) {
+                logMe(LOG_DBG, "assuming AAC (1 channel) with global_gain = " + to_string(inbuf[1] >> 1));
+            } else {
+                logMe(LOG_DBG, "Not an AAC; global_gain = " + to_string(inbuf[1] >> 1));
+                break; //skip leading zero-byte tracks. Let's assume that is not AAC track (ISO/IEC 13818-7 2004)
+            }
+        }
 
         //unknown exact sample size, so try to use ffmpeg by slowly increasing packet size
         while ((avpkt->size <= blockLength) && (avpkt->size > 0) && (ret < 0) && !(ret == AVERROR_EOF)) {
